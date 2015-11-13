@@ -1,26 +1,22 @@
 package fxchat.models;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.io.UnsupportedEncodingException;
-
-
 public class User {
     public String username;
     protected byte[] password;
     protected Boolean isAdmin;
+    protected Boolean online;
 
     /* Username */
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String uname) {
-        this.username = uname;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     /* Password */
-    public byte[] getPasswordHash() {
+    public byte[] getPassword() {
         return password;
     }
 
@@ -28,4 +24,21 @@ public class User {
         this.password = password;
     }
 
+    /* isAdmin */
+    public Boolean getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(Boolean isAdmin) {
+        this.isAdmin = isAdmin;
+    }
+
+    /* Online */
+    public Boolean getOnline() {
+        return online;
+    }
+
+    public void setOnline(Boolean online) {
+        this.online = online;
+    }
 }
