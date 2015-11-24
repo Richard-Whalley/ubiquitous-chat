@@ -1,15 +1,13 @@
 package fxchat.controllers;
 
+import fxchat.helpers.CurrentUser;
 import fxchat.helpers.HashPassword;
 import fxchat.helpers.SpaceUtils;
 import fxchat.helpers.SwitchContext;
 import fxchat.models.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
@@ -18,20 +16,28 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import net.jini.space.JavaSpace;
 
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 public class LoginController {
 
 	@FXML private Text statusText;
-	@FXML protected TextField username;
+	@FXML private TextField username;
 	@FXML private PasswordField password;
 
 	public JavaSpace javaSpace;
-	public User retrieved;
-	public User template;
+	public User currentUser = null;
+	public User template = null;
     public String hashedInput;
 
+
+    protected LoginController(){
+        javaSpace = SpaceUtils.getSpace();
+        if (javaSpace == null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Failed to find JavaSpace, please try again.");
+            alert.showAndWait().filter(response -> response == ButtonType.CLOSE).ifPresent(response -> System.exit(1));
+            System.err.println("Failed to find the javaspace");
+        }
+    }
 
     @FXML
 	protected void handleLoginSubmit(ActionEvent event) {
@@ -50,26 +56,23 @@ public class LoginController {
 
                 try {
                     template = new User(username.getText(), null, false);
-                    javaSpace = SpaceUtils.getSpace();
-                    if (javaSpace == null) {
-                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Failed to find JavaSpace, please try again.");
-                        alert.showAndWait().filter(response -> response == ButtonType.CLOSE).ifPresent(response -> System.exit(1));
-                        System.err.println("Failed to find the javaspace");
-                    }
-                    retrieved = (User) javaSpace.readIfExists(template, null, 1000);
-                    if (retrieved != null) {
-                        String hashedPassword = retrieved.getPassword();
+                    currentUser = (User) javaSpace.readIfExists(template, null, 1000);
+                    if (currentUser != null) {
+                        String hashedPassword = currentUser.getPassword();
 
                         /** DEBUG: Password equals checker
                          // System.out.println(hashedPassword + " = " + hashedInput); **/
 
+                        // Set current user object to CurrentUser Singleton
+                        CurrentUser.getInstance().setCurrentUser(currentUser);
+
                         // Check password
                         if (hashedPassword.equals(hashedInput)) {
-                            // Render Main Screen
                             Node node = (Node) event.getSource();
                             Stage stage = (Stage) node.getScene().getWindow();
 
-                            SwitchContext main = new SwitchContext("../views/main.fxml", stage, 1280, 800);
+                            // Render Main Screen
+                            SwitchContext main = new SwitchContext("../views/main.fxml", stage, 320, 640);
 
                         } else {
                             // Passwords Don't Match

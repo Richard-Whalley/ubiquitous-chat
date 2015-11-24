@@ -12,6 +12,8 @@ public class SwitchContext {
     public SwitchContext(String view, Stage stage, int x, int y) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(view));
+            stage.setX(0);
+            stage.setY(0);
             Scene scene = new Scene(root, x, y);
             stage.setScene(scene);
             stage.show();

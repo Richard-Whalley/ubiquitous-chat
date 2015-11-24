@@ -26,16 +26,22 @@ import java.security.NoSuchAlgorithmException;
 public class RegisterController {
 
     // FXML based Variables
-    @FXML
-    private Text statusText;
-    @FXML
-    protected TextField username;
-    @FXML
-    private PasswordField password;
-    @FXML
-    private PasswordField password_confirm;
+    @FXML private Text statusText;
+    @FXML private TextField username;
+    @FXML private PasswordField password;
+    @FXML private PasswordField password_confirm;
 
     public JavaSpace javaSpace;
+
+
+    private RegisterController(){
+        // Initialize space
+        javaSpace = SpaceUtils.getSpace();
+        if (javaSpace == null){
+            System.err.println("Failed to find the javaspace");
+            System.exit(1);
+        }
+    }
 
     @FXML
     protected void handleRegisterSubmit(ActionEvent event) {
@@ -46,16 +52,11 @@ public class RegisterController {
         if ((username.getText() != null && !username.getText().isEmpty())) {
             if ((password.getText() != null && !password.getText().isEmpty()) || (password_confirm.getText() != null && !password_confirm.getText().isEmpty())) {
                 if (password_confirm.getText().equals(password.getText())){
-                    javaSpace = SpaceUtils.getSpace();
-                    if (javaSpace == null){
-                        System.err.println("Failed to find the javaspace");
-                        System.exit(1);
-                    }
                     try {
                         User usr = new User(username.getText(), HashPassword.getInstance().hashPassword(password.getText()), false);
-                        // DEBUG: Usr object
+                        /** DEBUG: Usr object
                         System.out.println("Username: " + usr.getUsername());
-                        System.out.println("Password: " + usr.getPassword());
+                        System.out.println("Password: " + usr.getPassword()); **/
                         javaSpace.write(usr, null, 120000);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -75,8 +76,6 @@ public class RegisterController {
 
     }
 
-
-
     @FXML
     protected void switchContextLogin(ActionEvent event){
 
@@ -85,5 +84,24 @@ public class RegisterController {
         Stage stage = (Stage) node.getScene().getWindow();
 
         SwitchContext login = new SwitchContext("../views/login.fxml", stage, 320, 240);
+    }
+
+    private String isValid(){
+        // Initialize
+        String errorMsg = null;
+
+        if ((username.getText() != null && !username.getText().isEmpty())) {
+            if ((password.getText() != null && !password.getText().isEmpty()) || (password_confirm.getText() != null && !password_confirm.getText().isEmpty())) {
+                if (password_confirm.getText().equals(password.getText())){
+                } else {
+                    errorMsg = "Passwords do not match \n";
+                }
+            } else {
+                errorMsg = "Password(s) cannot be empty \n";
+            }
+        } else {
+            errorMsg = "Username cannot be empty \n";
+        }
+        return errorMsg;
     }
 }

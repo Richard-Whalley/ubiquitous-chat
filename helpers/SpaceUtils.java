@@ -5,6 +5,7 @@ import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.lookup.ServiceTemplate;
 import net.jini.core.transaction.server.TransactionManager;
 import net.jini.space.JavaSpace;
+import net.jini.space.JavaSpace05;
 
 import java.rmi.RMISecurityManager;
 
