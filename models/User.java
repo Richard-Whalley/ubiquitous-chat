@@ -1,10 +1,21 @@
 package fxchat.models;
 
-public class User {
+import net.jini.core.entry.Entry;
+
+public class User implements Entry {
     public String username;
-    protected byte[] password;
-    protected Boolean isAdmin;
-    protected Boolean online;
+    public String password;
+    public Boolean online;
+
+    // NoArgs for River
+    public User() {
+    }
+
+    public User(String username, String password, boolean online) {
+        this.username = username;
+        this.password = password;
+        this.online = online;
+    }
 
     /* Username */
     public String getUsername() {
@@ -16,22 +27,14 @@ public class User {
     }
 
     /* Password */
-    public byte[] getPassword() {
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(byte[] password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 
-    /* isAdmin */
-    public Boolean getIsAdmin() {
-        return isAdmin;
-    }
-
-    public void setIsAdmin(Boolean isAdmin) {
-        this.isAdmin = isAdmin;
-    }
 
     /* Online */
     public Boolean getOnline() {
