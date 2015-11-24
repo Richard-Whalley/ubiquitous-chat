@@ -25,16 +25,12 @@ public class LoginController {
 	@FXML private PasswordField password;
 
 	public JavaSpace javaSpace;
-	public User currentUser = null;
-	public User template = null;
-    public String hashedInput;
 
-
-    protected LoginController(){
+    public LoginController(){
         javaSpace = SpaceUtils.getSpace();
         if (javaSpace == null) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Failed to find JavaSpace, please try again.");
-            alert.showAndWait().filter(response -> response == ButtonType.CLOSE).ifPresent(response -> System.exit(1));
+            alert.showAndWait().filter(response -> response == ButtonType.OK).ifPresent(response -> System.exit(1));
             System.err.println("Failed to find the javaspace");
         }
     }
@@ -42,7 +38,12 @@ public class LoginController {
     @FXML
 	protected void handleLoginSubmit(ActionEvent event) {
 
+        User currentUser;
+        User template;
+        String hashedInput = null;
 		String errorMsg = "";
+
+
 
 		if ((username.getText() != null && !username.getText().isEmpty())) {
             // Attempt to retrieve user from space
@@ -75,22 +76,18 @@ public class LoginController {
                             SwitchContext main = new SwitchContext("../views/main.fxml", stage, 320, 640);
 
                         } else {
-                            // Passwords Don't Match
                             errorMsg += "Invalid Password \n";
                         }
                     } else {
-                        System.out.println("User not found");
                         errorMsg = "User not Found";
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 			} else {
-				// Passwords Empty
 				errorMsg += "Password cannot be empty \n";
 			}
 		} else {
-			// Username Empty
 			errorMsg = "Username cannot be empty \n";
 		}
 		
@@ -100,9 +97,7 @@ public class LoginController {
 
 	@FXML
 	protected void switchContextRegister(ActionEvent event) {
-
-		// Get Main stage
-		Node node = (Node) event.getSource();
+        Node node = (Node) event.getSource();
 		Stage stage = (Stage) node.getScene().getWindow();
 
         SwitchContext register = new SwitchContext("../views/register.fxml", stage, 320, 240);

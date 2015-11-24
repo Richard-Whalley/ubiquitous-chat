@@ -26,18 +26,22 @@ import java.security.NoSuchAlgorithmException;
 public class RegisterController {
 
     // FXML based Variables
-    @FXML private Text statusText;
-    @FXML private TextField username;
-    @FXML private PasswordField password;
-    @FXML private PasswordField password_confirm;
+    @FXML
+    private Text statusText;
+    @FXML
+    private TextField username;
+    @FXML
+    private PasswordField password;
+    @FXML
+    private PasswordField password_confirm;
 
     public JavaSpace javaSpace;
 
 
-    private RegisterController(){
+    public RegisterController() {
         // Initialize space
         javaSpace = SpaceUtils.getSpace();
-        if (javaSpace == null){
+        if (javaSpace == null) {
             System.err.println("Failed to find the javaspace");
             System.exit(1);
         }
@@ -49,35 +53,33 @@ public class RegisterController {
         // Initialize
         String errorMsg = null;
 
-        if ((username.getText() != null && !username.getText().isEmpty())) {
-            if ((password.getText() != null && !password.getText().isEmpty()) || (password_confirm.getText() != null && !password_confirm.getText().isEmpty())) {
-                if (password_confirm.getText().equals(password.getText())){
-                    try {
-                        User usr = new User(username.getText(), HashPassword.getInstance().hashPassword(password.getText()), false);
-                        /** DEBUG: Usr object
-                        System.out.println("Username: " + usr.getUsername());
-                        System.out.println("Password: " + usr.getPassword()); **/
-                        javaSpace.write(usr, null, 120000);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+        String validation = this.formValid();
+
+        if (validation == null) {
+            try {
+                User usr = new User(username.getText(), HashPassword.getInstance().hashPassword(password.getText()), false);
+                /** DEBUG: Usr object
+                 System.out.println("Username: " + usr.getUsername());
+                 System.out.println("Password: " + usr.getPassword()); **/
+
+                if (!userExists()) {
+                    javaSpace.write(usr, null, 120000);
+                    statusText.setText("User " + usr.getUsername() + " Created; Please login.");
                 } else {
-                    errorMsg = "Passwords do not match \n";
+                    statusText.setText("Username already exists");
                 }
-            } else {
-                errorMsg = "Password(s) cannot be empty \n";
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         } else {
-            errorMsg = "Username cannot be empty \n";
+            statusText.setText(validation);
         }
 
-
-        statusText.setText(errorMsg);
 
     }
 
     @FXML
-    protected void switchContextLogin(ActionEvent event){
+    protected void switchContextLogin(ActionEvent event) {
 
         // Get Main stage
         Node node = (Node) event.getSource();
@@ -86,22 +88,39 @@ public class RegisterController {
         SwitchContext login = new SwitchContext("../views/login.fxml", stage, 320, 240);
     }
 
-    private String isValid(){
+    private String formValid() {
         // Initialize
         String errorMsg = null;
 
-        if ((username.getText() != null && !username.getText().isEmpty())) {
+        if ((username.getText() == null && username.getText().isEmpty())) {
+            errorMsg = "Username cannot be empty \n";
+        } else {
             if ((password.getText() != null && !password.getText().isEmpty()) || (password_confirm.getText() != null && !password_confirm.getText().isEmpty())) {
-                if (password_confirm.getText().equals(password.getText())){
-                } else {
+                if (!password_confirm.getText().equals(password.getText())) {
                     errorMsg = "Passwords do not match \n";
                 }
             } else {
                 errorMsg = "Password(s) cannot be empty \n";
             }
-        } else {
-            errorMsg = "Username cannot be empty \n";
         }
+
         return errorMsg;
+    }
+
+    private boolean userExists() {
+
+        boolean bool = false;
+
+        try {
+            User template = new User(username.getText(), null, false);
+            User currentUser = (User) javaSpace.readIfExists(template, null, 1000);
+            if (null != currentUser) bool = true;
+            else bool = false;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return bool;
+
     }
 }
