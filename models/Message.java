@@ -2,28 +2,36 @@ package fxchat.models;
 
 import java.util.Calendar;
 
+import fxchat.helpers.CurrentUser;
+import net.jini.core.entry.Entry;
+
+
 /**
  * Created by rickwhalley on 24/11/2015.
  */
-public class Message {
-    String chatTopic;
-    String username;
-    String message;
-    Calendar timestamp;
+public class Message implements Entry{
+    public String chatTopic;
+    public String username;
+    public String message;
+    public Calendar timestamp;
 
     public Message(){
         // No Args for Jini
     }
 
+    public Message(String chatTopic){
+        this.chatTopic = chatTopic;
+    }
+
     public Message(String chatTopic, String username, String message){
-        chatTopic = this.chatTopic;
-        username = this.username;
-        message = this.message;
-        timestamp = Calendar.getInstance();
+        this.chatTopic = chatTopic ;
+        this.username = username;
+        this.message = message;
+        this.timestamp = Calendar.getInstance();
     }
 
     public String getChatTopic() {
-        return chatTopic;
+        return this.chatTopic;
     }
 
     public void setChatTopic(String chatTopic) {
@@ -31,7 +39,7 @@ public class Message {
     }
 
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
     public void setUsername(String username) {
@@ -47,7 +55,7 @@ public class Message {
     }
 
     public Calendar getTimestamp() {
-        return timestamp;
+        return this.timestamp;
     }
 
     public void setTimestamp(Calendar timestamp) {

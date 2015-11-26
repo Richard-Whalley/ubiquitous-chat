@@ -6,22 +6,12 @@ import fxchat.helpers.SwitchContext;
 import fxchat.models.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import jdk.nashorn.internal.ir.annotations.Ignore;
-import net.jini.core.transaction.TransactionException;
-import net.jini.space.JavaSpace;
-
-import java.io.IOException;
-import java.math.BigInteger;
-import java.rmi.RemoteException;
-import java.security.NoSuchAlgorithmException;
+import net.jini.space.JavaSpace05;
 
 public class RegisterController {
 
@@ -35,7 +25,7 @@ public class RegisterController {
     @FXML
     private PasswordField password_confirm;
 
-    public JavaSpace javaSpace;
+    public JavaSpace05 javaSpace;
 
 
     public RegisterController() {
@@ -51,8 +41,6 @@ public class RegisterController {
     protected void handleRegisterSubmit(ActionEvent event) {
 
         // Initialize
-        String errorMsg = null;
-
         String validation = this.formValid();
 
         if (validation == null) {
@@ -63,7 +51,8 @@ public class RegisterController {
                  System.out.println("Password: " + usr.getPassword()); **/
 
                 if (!userExists()) {
-                    javaSpace.write(usr, null, 120000);
+                    // Write user to space perma
+                    javaSpace.write(usr, null, Long.MAX_VALUE);
                     statusText.setText("User " + usr.getUsername() + " Created; Please login.");
                 } else {
                     statusText.setText("Username already exists");
