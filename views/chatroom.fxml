@@ -70,7 +70,7 @@
                         </Label>
                     </children>
                 </HBox>
-                <ListView fx:id="thread" onMouseClicked="#repaintThread" prefHeight="657.0" prefWidth="1061.0">
+                <ListView fx:id="thread" onMouseClicked="#repaintThreadAll" prefHeight="655.0" prefWidth="1008.0">
                     <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                     </padding>

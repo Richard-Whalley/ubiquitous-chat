@@ -61,4 +61,13 @@ public class Message implements Entry{
     public void setTimestamp(Calendar timestamp) {
         this.timestamp = timestamp;
     }
+
+    public String formatMessage() {
+        String date = this.getTimestamp().getTime().toString();
+        String user = this.getUsername();
+        String message_body = this.getMessage();
+
+        // Construct Message
+        return "[" + date + "] " + user + ": " + message_body;
+    }
 }

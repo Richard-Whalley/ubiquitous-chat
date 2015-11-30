@@ -30,6 +30,25 @@ public class MainController {
         }
     }
 
+    public void initData(){
+        // Grab all messages in chatroom
+        try {
+//            Message message_template = new Message(this.topic);
+//            ArrayList<Message> message_template_array = new ArrayList<>();
+//            message_template_array.add(message_template);
+//            MatchSet allMessages = javaSpace.contents(message_template_array, null, Lease.FOREVER, Long.MAX_VALUE);
+//            Entry message;
+//            while ((message = allMessages.next()) != null) {
+//                Message msg = (Message) message;
+//                messagethread.add(msg.formatMessage());
+//            }
+//            thread.setItems(messagethread);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     @FXML
     public void createRoom() {
         TextInputDialog dialog = new TextInputDialog();
@@ -38,6 +57,11 @@ public class MainController {
         dialog.setContentText("topic:");
 
         dialog.showAndWait().ifPresent(this::commitRoom);
+    }
+
+    @FXML
+    public void joinRoom(){
+        //TODO: join room code
     }
 
     private void commitRoom(String topic) {
