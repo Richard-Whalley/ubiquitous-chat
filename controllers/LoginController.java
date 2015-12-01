@@ -7,7 +7,9 @@ import fxchat.helpers.SwitchContext;
 import fxchat.models.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
@@ -16,6 +18,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import net.jini.space.JavaSpace05;
 
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 public class LoginController {
@@ -57,7 +60,7 @@ public class LoginController {
             }
 
             try {
-                template = new User(username.getText(), null, false);
+                template = new User(username.getText(), null);
                 currentUser = (User) javaSpace.readIfExists(template, null, 2500);
                 if (currentUser != null) {
                     String hashedPassword = currentUser.getPassword();
@@ -70,12 +73,12 @@ public class LoginController {
 
                     // Check password
                     if (hashedPassword.equals(hashedInput)) {
-                        Node node = (Node) event.getSource();
-                        Stage stage = (Stage) node.getScene().getWindow();
-
-                        // Render Main Screen
-                        SwitchContext main = new SwitchContext("../views/main.fxml", stage, 320, 640);
-
+//                        Node node = (Node) event.getSource();
+//                        Stage stage = (Stage) node.getScene().getWindow();
+//
+//                        // Render Main Screen
+//                        SwitchContext main = new SwitchContext("../views/main.fxml", stage, 320, 640);
+                        loadMain();
                     } else {
                         validation = "Invalid Password \n";
                     }
@@ -90,6 +93,26 @@ public class LoginController {
 
         statusText.setText(validation);
 
+    }
+
+    public Stage loadMain() throws IOException {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource(
+                        "../views/main.fxml"
+                )
+        );
+
+        Stage stage = new Stage();
+        stage.setX(0);
+        stage.setY(0);
+        stage.setScene(
+                new Scene(loader.load())
+        );
+
+        MainController controller = loader.<MainController>getController();
+        controller.initData();
+        stage.show();
+        return stage;
     }
 
     private String formValid() {

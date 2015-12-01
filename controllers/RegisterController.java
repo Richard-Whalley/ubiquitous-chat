@@ -45,7 +45,7 @@ public class RegisterController {
 
         if (validation == null) {
             try {
-                User usr = new User(username.getText(), HashPassword.getInstance().hashPassword(password.getText()), false);
+                User usr = new User(username.getText(), HashPassword.getInstance().hashPassword(password.getText()));
                 /** DEBUG: Usr object
                  System.out.println("Username: " + usr.getUsername());
                  System.out.println("Password: " + usr.getPassword()); **/
@@ -101,7 +101,7 @@ public class RegisterController {
         boolean bool = false;
 
         try {
-            User template = new User(username.getText(), null, false);
+            User template = new User(username.getText(), null);
             User currentUser = (User) javaSpace.readIfExists(template, null, 1000);
             if (null != currentUser) bool = true;
             else bool = false;

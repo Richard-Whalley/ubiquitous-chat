@@ -2,24 +2,38 @@ package fxchat.controllers;
 
 import fxchat.helpers.SpaceUtils;
 import fxchat.models.Chatroom;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
+import net.jini.core.entry.Entry;
+import net.jini.core.event.RemoteEvent;
+import net.jini.core.event.RemoteEventListener;
+import net.jini.core.lease.Lease;
+import net.jini.export.Exporter;
+import net.jini.jeri.BasicILFactory;
+import net.jini.jeri.BasicJeriExporter;
+import net.jini.jeri.tcp.TcpServerEndpoint;
+import net.jini.space.AvailabilityEvent;
 import net.jini.space.JavaSpace05;
+import net.jini.space.MatchSet;
 
 import java.io.IOException;
+import java.rmi.Remote;
+import java.util.ArrayList;
 
-public class MainController {
+public class MainController implements RemoteEventListener {
 
     @FXML
-    private Label chatroomTopic;
+    private ListView<String> roomlist;
 
-    JavaSpace05 javaSpace;
+    private ObservableList<String> roomlist_array = FXCollections.observableArrayList();
+    private RemoteEventListener stub;
+    private JavaSpace05 javaSpace;
 
     public MainController() {
         javaSpace = SpaceUtils.getSpace();
@@ -33,20 +47,57 @@ public class MainController {
     public void initData(){
         // Grab all messages in chatroom
         try {
-//            Message message_template = new Message(this.topic);
-//            ArrayList<Message> message_template_array = new ArrayList<>();
-//            message_template_array.add(message_template);
-//            MatchSet allMessages = javaSpace.contents(message_template_array, null, Lease.FOREVER, Long.MAX_VALUE);
-//            Entry message;
-//            while ((message = allMessages.next()) != null) {
-//                Message msg = (Message) message;
-//                messagethread.add(msg.formatMessage());
-//            }
-//            thread.setItems(messagethread);
+            // Init template Array
+            Chatroom chatroom_template = new Chatroom(null);
+            ArrayList<Chatroom> chatroom_template_array = new ArrayList<>();
+            chatroom_template_array.add(chatroom_template);
+
+            MatchSet allChatrooms = javaSpace.contents(chatroom_template_array, null, Lease.FOREVER, Long.MAX_VALUE);
+            Entry chatroom;
+            while ((chatroom = allChatrooms.next()) != null){
+                Chatroom ctrm = (Chatroom) chatroom;
+                roomlist_array.add(ctrm.getTopic());
+            }
+            roomlist.setItems(roomlist_array);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        // Set up the security manager
+        if (System.getSecurityManager() == null)
+            System.setSecurityManager(new SecurityManager());
+
+        // Create the exporter
+        Exporter myDefaultExporter =
+                new BasicJeriExporter(TcpServerEndpoint.getInstance(0),
+                        new BasicILFactory(), false, true);
+
+        // Set Remote Listener
+        try {
+            // register this as a remote object
+            // and get a reference to the 'stub'
+            stub = (RemoteEventListener) myDefaultExporter.export(this);
+            // add the listener
+            Chatroom chatroom_template = new Chatroom(null);
+            ArrayList<Chatroom> chatroom_template_array = new ArrayList<>();
+            chatroom_template_array.add(chatroom_template);
+            javaSpace.registerForAvailabilityEvent(chatroom_template_array, null, true, stub, Lease.FOREVER, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @FXML
+    public void notify(RemoteEvent event){
+        try {
+            AvailabilityEvent e = (AvailabilityEvent) event;
+            Entry chatroomEntry = (Entry) e.getEntry();
+            Chatroom chatroom = (Chatroom) chatroomEntry;
+            Platform.runLater(() -> roomlist_array.add(chatroom.getTopic()));
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @FXML

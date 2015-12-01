@@ -25,8 +25,6 @@ import net.jini.space.AvailabilityEvent;
 import net.jini.space.JavaSpace05;
 import net.jini.space.MatchSet;
 
-import java.rmi.MarshalledObject;
-import java.rmi.RMISecurityManager;
 import java.util.ArrayList;
 
 /**

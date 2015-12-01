@@ -36,4 +36,5 @@ public class Chatroom implements Entry {
     public void setOwner(String owner) {
         this.owner = owner;
     }
+
 }
