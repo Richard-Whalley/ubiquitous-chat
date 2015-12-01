@@ -73,12 +73,7 @@ public class LoginController {
 
                     // Check password
                     if (hashedPassword.equals(hashedInput)) {
-//                        Node node = (Node) event.getSource();
-//                        Stage stage = (Stage) node.getScene().getWindow();
-//
-//                        // Render Main Screen
-//                        SwitchContext main = new SwitchContext("../views/main.fxml", stage, 320, 640);
-                        loadMain();
+                        loadMain(event);
                     } else {
                         validation = "Invalid Password \n";
                     }
@@ -95,14 +90,16 @@ public class LoginController {
 
     }
 
-    public Stage loadMain() throws IOException {
+    public Stage loadMain(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource(
                         "../views/main.fxml"
                 )
         );
 
-        Stage stage = new Stage();
+        Node  source = (Node)  event.getSource();
+        Stage stage  = (Stage) source.getScene().getWindow();
+
         stage.setX(0);
         stage.setY(0);
         stage.setScene(

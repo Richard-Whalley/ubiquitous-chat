@@ -21,6 +21,11 @@ public class Chatroom implements Entry {
         this.owner = CurrentUser.getInstance().getUser().getUsername();
     }
 
+    public Chatroom(String topic, String owner){
+        this.topic = topic;
+        this.owner = owner;
+    }
+
     public String getTopic() {
         return topic;
     }

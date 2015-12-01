@@ -2,6 +2,7 @@ package fxchat.models;
 
 import java.util.Calendar;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import fxchat.helpers.CurrentUser;
 import net.jini.core.entry.Entry;
 
@@ -14,6 +15,7 @@ public class Message implements Entry{
     public String username;
     public String message;
     public Calendar timestamp;
+    public Boolean isPrivate;
 
     public Message(){
         // No Args for Jini
@@ -23,11 +25,16 @@ public class Message implements Entry{
         this.chatTopic = chatTopic;
     }
 
-    public Message(String chatTopic, String username, String message){
+    public Message(String chatTopic, String username, String message, Boolean isTemplate, Boolean isPrivate){
         this.chatTopic = chatTopic ;
         this.username = username;
         this.message = message;
-        this.timestamp = Calendar.getInstance();
+        if (isTemplate){
+            this.timestamp = null;
+        } else {
+            this.timestamp = Calendar.getInstance();
+        }
+        this.isPrivate = isPrivate;
     }
 
     public String getChatTopic() {
@@ -67,7 +74,14 @@ public class Message implements Entry{
         String user = this.getUsername();
         String message_body = this.getMessage();
 
+        if (this.getIsPrivate()){
+            return "[" + date + "][Private] " + user + ": " + message_body;
+        } else {
+            return "[" + date + "] " + user + ": " + message_body;
+        }
+
         // Construct Message
-        return "[" + date + "] " + user + ": " + message_body;
     }
+
+    public Boolean getIsPrivate() { return this.isPrivate; }
 }

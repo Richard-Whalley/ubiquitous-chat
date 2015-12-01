@@ -5,6 +5,7 @@ import fxchat.models.Chatroom;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -48,7 +49,7 @@ public class MainController implements RemoteEventListener {
         // Grab all messages in chatroom
         try {
             // Init template Array
-            Chatroom chatroom_template = new Chatroom(null);
+            Chatroom chatroom_template = new Chatroom(null, null);
             ArrayList<Chatroom> chatroom_template_array = new ArrayList<>();
             chatroom_template_array.add(chatroom_template);
 
@@ -77,8 +78,8 @@ public class MainController implements RemoteEventListener {
             // register this as a remote object
             // and get a reference to the 'stub'
             stub = (RemoteEventListener) myDefaultExporter.export(this);
-            // add the listener
-            Chatroom chatroom_template = new Chatroom(null);
+            // add the listener for any chatroom
+            Chatroom chatroom_template = new Chatroom(null, null);
             ArrayList<Chatroom> chatroom_template_array = new ArrayList<>();
             chatroom_template_array.add(chatroom_template);
             javaSpace.registerForAvailabilityEvent(chatroom_template_array, null, true, stub, Lease.FOREVER, null);
@@ -111,22 +112,37 @@ public class MainController implements RemoteEventListener {
     }
 
     @FXML
-    public void joinRoom(){
-        //TODO: join room code
+    public void joinRoom(ActionEvent event){
+        String topic = roomlist.getSelectionModel().getSelectedItem();
+
+        if (null != topic){
+            try {
+                Chatroom chatroom_template = new Chatroom(topic, null);
+                if (roomExists(topic)){
+                    Chatroom chatroom = (Chatroom) javaSpace.read(chatroom_template, null, 1200000);
+                    loadChatroom(chatroom);
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+
+        } else {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "No chatroom selected, please try again.");
+            alert.showAndWait().filter(response -> response == ButtonType.OK);
+        }
     }
 
     private void commitRoom(String topic) {
         try {
             Chatroom chatroom = new Chatroom(topic);
             if (!roomExists(topic)) {
-                javaSpace.write(chatroom, null, 120000);
+                javaSpace.write(chatroom, null, 1200000);
                 loadChatroom(chatroom);
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error: Chat Topic Exists");
                 alert.setHeaderText("Chat Topic Exists");
                 alert.setContentText("Sorry, it looks like there is already a chatroom called " + topic + ". Please try again with a different name.");
-
                 alert.showAndWait();
             }
         } catch (Exception e) {
@@ -134,11 +150,12 @@ public class MainController implements RemoteEventListener {
         }
     }
 
+
     private boolean roomExists(String topic) {
         boolean bool = false;
 
         try {
-            Chatroom template = new Chatroom(topic);
+            Chatroom template = new Chatroom(topic, null);
             Chatroom exists = (Chatroom) javaSpace.readIfExists(template, null, 1000);
             bool = null != exists;
         } catch (Exception e) {

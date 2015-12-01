@@ -40,11 +40,14 @@ public class ChatroomController implements RemoteEventListener {
     private ListView<String> thread;
     @FXML
     private ListView<String> userlist;
+    @FXML
+    private CheckBox isPrivate;
 
 
     private User currentUser = CurrentUser.getInstance().getUser();
     private String topic;
     private String owner;
+    private Boolean isOwner;
     private ObservableList<String> messagethread = FXCollections.observableArrayList();
     private JavaSpace05 javaSpace;
     private RemoteEventListener stub;
@@ -67,6 +70,13 @@ public class ChatroomController implements RemoteEventListener {
         owner = chatroom.getOwner();
         chatroomHeader.setText(topic + " [moderator: " + owner + "]");
 
+        if (owner.equals(CurrentUser.getInstance().getUser().getUsername())){
+            this.isOwner = true;
+            isPrivate.setVisible(false);
+        } else {
+            this.isOwner = false;
+        }
+
         // Listview Cell Factory Lambda to wrap text
         thread.setCellFactory(lv -> new ListCell<String>() {
             @Override
@@ -82,11 +92,26 @@ public class ChatroomController implements RemoteEventListener {
             }
         });
 
-        // Grab all messages in chatroom
+        // Templating
+        ArrayList<Message> message_template_array = new ArrayList<>();
+        Message message_owner_template;
+        Message message_nonowner_template;
+        Message message_template_private_sent;
+
+        if (isOwner) {
+            // Owner sees all
+            message_owner_template = new Message(this.topic, null, null, true, null);
+            message_template_array.add(message_owner_template);
+        } else {
+            // User sees all non-private + their own sent private
+            message_nonowner_template = new Message(this.topic, null, null, true, false);
+            message_template_array.add(message_nonowner_template);
+            message_template_private_sent = new Message(this.topic, CurrentUser.getInstance().getUser().getUsername(), null, true, true);
+            message_template_array.add(message_template_private_sent);
+        }
+
+        // Repopulate all message
         try {
-            Message message_template = new Message(this.topic);
-            ArrayList<Message> message_template_array = new ArrayList<>();
-            message_template_array.add(message_template);
             MatchSet allMessages = javaSpace.contents(message_template_array, null, Lease.FOREVER, Long.MAX_VALUE);
             Entry message;
             while ((message = allMessages.next()) != null) {
@@ -109,15 +134,9 @@ public class ChatroomController implements RemoteEventListener {
 
         // Set Remote Listener
         try {
-            // register this as a remote object
-            // and get a reference to the 'stub'
+            // Register this as a remote object and get a reference to the 'stub'
             stub = (RemoteEventListener) myDefaultExporter.export(this);
-            Message template = new Message();
-            System.out.println("Topic: " + this.topic);
-            // add the listener
-            Message message_template = new Message(this.topic);
-            ArrayList<Message> message_template_array = new ArrayList<>();
-            message_template_array.add(message_template);
+            // Add the listener
             javaSpace.registerForAvailabilityEvent(message_template_array, null, true, stub, Lease.FOREVER, null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -131,8 +150,6 @@ public class ChatroomController implements RemoteEventListener {
             AvailabilityEvent e = (AvailabilityEvent) event;
             Entry messageEntry = e.getEntry();
             Message message = (Message) messageEntry;
-
-            System.out.println("RECIV: " + message.formatMessage());
             Platform.runLater(() -> messagethread.add(message.formatMessage()));
 
         } catch (Exception e) {
@@ -143,11 +160,8 @@ public class ChatroomController implements RemoteEventListener {
 
     @FXML
     public void say(ActionEvent event) {
-
-        System.out.println("Sent: " + messageBox.getText());
-
         try {
-            Message message = new Message(this.topic, currentUser.getUsername(), messageBox.getText());
+            Message message = new Message(this.topic, currentUser.getUsername(), messageBox.getText(), false, isPrivate.isSelected());
             javaSpace.write(message, null, 120000);
             messageBox.setText(null);
         } catch (Exception e) {
@@ -157,26 +171,34 @@ public class ChatroomController implements RemoteEventListener {
     }
 
 
-    @FXML
-    protected void repaintThreadAll() {
-        try {
-            thread.getItems().clear();
-            Message message_template = new Message(this.topic);
-            ArrayList<Message> message_template_array = new ArrayList<>();
-            message_template_array.add(message_template);
-            MatchSet allMessages = javaSpace.contents(message_template_array, null, Lease.FOREVER, Long.MAX_VALUE);
-            Entry message;
-            while ((message = allMessages.next()) != null) {
-                Message msg = (Message) message;
-                messagethread.add(msg.formatMessage());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//    @FXML
+//    protected void repaintThreadAll() {
+//        try {
+//            thread.getItems().clear();
+//            Message message_template = new Message(this.topic);
+//            ArrayList<Message> message_template_array = new ArrayList<>();
+//            message_template_array.add(message_template);
+//            MatchSet allMessages = javaSpace.contents(message_template_array, null, Lease.FOREVER, Long.MAX_VALUE);
+//            Entry message;
+//            while ((message = allMessages.next()) != null) {
+//                Message msg = (Message) message;
+//                messagethread.add(msg.formatMessage());
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        thread.setItems(messagethread);
+//    }
 
-        // TODO: Grab all messages for this chatroom and populate thread
-        thread.setItems(messagethread);
+    @FXML
+    protected void handleLeaveChatroom() {
+        //TODO: Stub
     }
 
+    @FXML
+    protected void handleDeleteChatroom() {
+        //TODO: Stub
+    }
 
 }
