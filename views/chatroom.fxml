@@ -16,7 +16,7 @@
               <menus>
                 <Menu mnemonicParsing="false" text="File">
                   <items>
-                    <MenuItem mnemonicParsing="false" onAction="#handleLeaveChatroom" text="Leave Chatroom">
+                    <MenuItem fx:id="logout" mnemonicParsing="false" onAction="#handleLeaveChatroom" text="Leave Chatroom">
                            <accelerator>
                               <KeyCodeCombination alt="UP" code="W" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                            </accelerator></MenuItem>
@@ -103,7 +103,7 @@
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                             </HBox.margin>
                         </TextField>
-                        <Button defaultButton="true" minWidth="100.0" mnemonicParsing="false" onAction="#say" prefWidth="100.0" text="Say">
+                        <Button fx:id="say_button" defaultButton="true" minWidth="100.0" mnemonicParsing="false" onAction="#say" prefWidth="100.0" text="Say">
                             <HBox.margin>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                             </HBox.margin>

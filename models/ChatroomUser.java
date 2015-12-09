@@ -1,21 +1,24 @@
 package fxchat.models;
 
-import java.util.ArrayList;
+import net.jini.core.entry.Entry;
 
 /**
  * Created by rickwhalley on 13/11/2015.
  */
-public class ChatroomUser {
+public class ChatroomUser implements Entry{
     public String chatroom;
     public String user;
+    public Boolean isDeleted;
+
 
     public ChatroomUser(){
         // No args for Jini
     }
 
-    public ChatroomUser(String chatroom, String user) {
+    public ChatroomUser(String chatroom, String user, Boolean deleted) {
         this.chatroom = chatroom;
         this.user = user;
+        this.isDeleted = deleted;
     }
 
     public String getChatroom() {
@@ -33,4 +36,10 @@ public class ChatroomUser {
     public void setUser(String user) {
         this.user = user;
     }
+
+    public Boolean getDeleted() { return isDeleted; }
+
+    public void setDeleted(Boolean deleted) { isDeleted = deleted; }
+
+
 }
